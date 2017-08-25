@@ -23,4 +23,5 @@ Variables
 on the means and standard deviations.  
 *  `all_data` is the combination of all testing and training data.  
 *  `average_data` is the tidy data set with the average of each variable for each activity and each subject.  
-*  finally, wrote the above data to `average.txt`.
+*  finally, wrote the above data to `averages.txt`.  
+#  I just put activity as 1st column and subject as 2nd column
