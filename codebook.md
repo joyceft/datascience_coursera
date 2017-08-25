@@ -2,6 +2,13 @@ Code Book
 ===========================================================
 This code book is to indicate all the variables used in the project, and summeries calculated, along with 
 units, and any other relevant information.
+Steps
+-----------------------------------------------------------
+1.  Reading all the data files we need
+2.  Giving names for specific columns such as `subjectid`, `activityid`, `activity names`
+3.  Merging training data and test data into one dataset(separately)
+4.  Extracting variables which contain only `mean` and `standard deviation`
+5.  From step 4, creating a new tidy data set with the average of each activity and each subject
 
 Variables
 ------------------------------------------------------------
