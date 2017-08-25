@@ -32,7 +32,7 @@ mrg_train <- cbind(train_y, train_subject, train_x)
 all_data <- rbind(mrg_test, mrg_train)
 ##2.
 ##Extracts only the measurements on the mean and standard deviation for each measurement
-select_mean_sd <- grep("-mean()|-std()", features[,2])+2
+select_mean_sd <- grep("-mean()|-std()", features[,2]) + 2
 #since the feature starts from the 3rd col(1st is activityid, 2nd is subject id)
 #add 2 to the index of selexct_mean_sd
 mrg_test_msd <- mrg_test[, c(1,2,select_mean_sd)]
@@ -52,6 +52,8 @@ colnames(mrg_train_msd)<- col_label
 ##From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 ##combine all test&train data
 all_data <- rbind(mrg_test_msd, mrg_train_msd)
+#set activity as factor, not just id anymore.
+all_data$activityId <- factor(all_data$activityId, levels = activity_labels[,1], labels = activity_labels[,2])
 average_data <- ddply(all_data, .(activityId, subjectId), ave = mean(all_data[, 3:81]))
 # choose from col 3 to col 81, since the first 2 col is activityId and subjectId
 write.table(average_data, "averages.txt", row.name=FALSE)
