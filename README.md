@@ -5,7 +5,6 @@ The data comes from this website:
 [Human Activity Recognition Using Smartphones](https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip)
 
 One R script is created called `run_analysis.R`, which does the following requirements:
-
     1.Merges the training and the test sets to create one data set.
     2.Extracts only the measurements on the mean and standard deviation for each measurement.
     3.Uses descriptive activity names to name the activities in the data set
@@ -15,4 +14,4 @@ One R script is created called `run_analysis.R`, which does the following requir
 
 The code book contains all the variables and summaries calculated, along with units, and 
 any other relevant information.
-The result output of step 5 is in the file averages.txt
+The result output of step 5 is in the file `averages.txt`
