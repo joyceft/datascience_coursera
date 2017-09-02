@@ -1,0 +1,117 @@
+---
+title: "Assignment1"
+author: "Joyce Fang"
+date: "August 31, 2017"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+##1.Loading and preparing data
+Raw data comes from [activity monitoring data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip)
+```{r}
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(lattice)
+library(knitr)
+##download and unzip the dataset:
+filename <-"Activity Monitoring Data.zip"
+if(!file.exists(filename)){
+  fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+  download.file(fileUrl, filename)
+}
+if(!file.exists("Activity Monitoring Data.zip")){
+  unzip(filename)
+}
+monitor <- read.csv("activity.csv", header = TRUE, na="NA")
+```
+##2.What is mean total number of steps taken per day?
+First preparing the data by grouping by date to get their total daily steps. Then draw the histogram, adding the vertical lines of mean and median. Finally report the mean and median of the total number of steps taken per day.
+```{r}
+str(monitor)
+monitor_sum <- aggregate(x=monitor$steps, by=list(monitor$date), FUN = sum, na.rm=TRUE)
+names(monitor_sum)<-c("date","total_steps")
+#plot the histogram
+hist(monitor_sum$total_steps, main="Histogram of total number of steps per day", xlab="total steps", ylab="days", breaks = 30, col = "lightblue")
+abline(v = mean(monitor_sum$total_steps, na.rm=TRUE),lwd=3, lty=2, col = 2)
+abline(v=median(monitor_sum$total_steps, na.rm=TRUE), lwd=3, lty=4, col= 5)
+legend("topright", c("mean", "median"), lty =c(2,4), col=c(2,5))
+dev.copy(png, "Plot1.png")
+dev.off()
+print(mean(monitor_sum$total_steps, na.rm=TRUE))
+print(median(monitor_sum$total_steps, na.rm= TRUE))
+```
+##3.What is the average daily activity pattern?
+Make a time series plot(with type="l") of the 5-minute interval(x-axis) and total number of steps taken, averaged across all the day(y-axis),finally get the interval with the largest number of steps.
+```{r}
+##time seires problem
+monitor_interval <- aggregate(x=list(steps=monitor$steps), by = list(interval = monitor$interval), FUN= mean, na.rm = TRUE)
+xyplot(monitor_interval$steps~monitor_interval$interval,  type="l", xlab="5 minute interval", ylab="average number steps per day",main = "Average daily activity pattern")
+#theme(axis.text.x = element_text(angle = 45,hjust = 1))
+max <- monitor_interval[which.max(monitor_interval$steps), ]
+dev.copy(png, "Plot2.png")
+dev.off()
+max
+```
+##4.Imputing missing values
+1.check how many NA are in steps and interval
+```{r}
+monitor_subna <- monitor
+na_row <- is.na(monitor$steps)
+na_in <- is.na(monitor$interval)
+print(sum(na_row))
+print(sum(na_in))
+```
+there is no NA in interval
+2.Replace NA with the mean of 5-minute interval to a new data set:monitor_subna
+```{r}
+average_interval <- tapply(monitor$steps, monitor$interval, mean, na.rm=TRUE, simplify = TRUE)
+monitor_subna$steps[na_row] <- average_interval[as.character(monitor_subna$interval[na_row])]
+#get the average # of steps in 5-minute intervals, the method is the same as question1
+subna_sum <- aggregate(x=monitor_subna$steps, by=list(monitor_subna$date), FUN = sum)
+names(subna_sum) <- c("Date","steps")
+```
+4.make histogram of total number of steps and compare with the means and medians with/without NA replacement
+```{r}
+hist(subna_sum$steps, breaks = 30, main="Total number of steps per day
+     (NA replaced by the mean of interval)", xlab="steps", ylab="days", col = "lightblue")
+abline(v = mean(subna_sum$steps),lwd=3, lty=2, col = 6)
+abline(v=median(subna_sum$steps, na.rm=TRUE), lwd=3, lty=4, col= 7)
+#add mean/median of steps without NA replace
+abline(v = mean(monitor_sum$total_steps, na.rm=TRUE),lwd=3, lty=2, col = 2)
+abline(v=median(monitor_sum$total_steps, na.rm=TRUE), lwd=3, lty=4, col= 5)
+legend("topright", c("mean_with NA", "median_with_NA","mean_replace NA", "median_replace NA"), lty =c(2,4), col=c(2, 5, 6, 7),cex=1)
+dev.copy(png, "Plot3.png")
+dev.off()
+```
+The means of total steps per day do no change before/after replacement of NA, but the median increased to the value of mean.
+
+##5.Are there differences in activity patterns between weekdays and weekends?
+1.create new variables in the dataset with"weekday","weekend".
+```{r}
+monitor_subna$weekday <- weekdays(as.Date(monitor_subna$date))
+m_f <- c("Monday","Tuesday","Wednesday","Thursday","Friday")
+s_s <- c("Saturday","Sunday")
+monitor_subna$weekday[monitor_subna$weekday%in%m_f]<- "weekday"
+monitor_subna$weekday[monitor_subna$weekday%in%s_s]<- "weekend"
+```
+2.make a panel plot containing a time series plot of 5-minute interval and the avg number of steps taken.
+```{r}
+#first change the week type to factor
+monitor_subna$weekday <- as.factor(monitor_subna$weekday)
+subna_interval_sum <- aggregate(steps ~ interval + weekday, data = monitor_subna, mean)
+xyplot(steps~interval|weekday, data=subna_interval_sum, type="l", xlab="Interval", ylab="Number of steps", main = "Average number of steps taken 
+in weekday/weekend of 5-minute interval")
+dev.copy(png, "Plot4.png")
+dev.off()
+```
+
+
+
+
+
+
